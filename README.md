@@ -17,7 +17,8 @@ To provision the backend do the following:
 PROJECT_NAME="gen1"
 ENVIRONMENT_NAME="dev"
 ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
-export TF_VARS_bucket_name="${PROJECT_NAME}-${ENVIRONMENT_NAME}-${ACCOUNT_ID}"
+export TF_VAR_bucket_name="${PROJECT_NAME}-${ENVIRONMENT_NAME}-${ACCOUNT_ID}"
+export TF_VAR_region=us-east-1
 tf init
 tf fmt
 tf validate
@@ -32,4 +33,23 @@ To install the linter:
 ```
 brew install tflint
 pip3 install checkov
+```
+
+To upgrade:
+```yaml
+pip3 install -U checkov
+```
+
+To init:
+```yaml
+cd terraform/aws/eks
+rm -rf .terraform
+rm -rf .terraform.*
+terraform init \
+  -backend-config="region=${TF_VAR_region}" \
+  -backend-config="bucket=${TF_VAR_bucket_name}" \
+  -backend-config="dynamodb_table=${TF_VAR_bucket_name}-locks" \ 
+  -backend=true \
+  -force-copy \
+  -input=false
 ```
