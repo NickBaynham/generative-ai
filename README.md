@@ -42,7 +42,7 @@ pip3 install -U checkov
 
 To init:
 ```yaml
-cd terraform/aws/eks
+cd terraform/aws/eks-cluster-remove-me-tf-eks-cluster-network
 rm -rf .terraform
 rm -rf .terraform.*
 terraform init \
@@ -53,3 +53,9 @@ terraform init \
   -force-copy \
   -input=false
 ```
+
+As a one-liner:
+```yaml
+terraform init -backend-config="region=${TF_VAR_region}" -backend-config="bucket=${TF_VAR_bucket_name}" -backend-config="dynamodb_table=${TF_VAR_bucket_name}-locks" -backend=true -force-copy -input=false
+```
+
