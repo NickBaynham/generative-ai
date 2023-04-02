@@ -1,14 +1,16 @@
 # Create Security Group
 resource "aws_security_group" "services" {
-  name        = "terraform_services"
+  name        = "${var.project}-sg"
   description = "AWS security group for terraform"
   vpc_id      = aws_vpc.gen1.id
+  depends_on = [ aws_vpc.gen1 ]
 
   # Input
   ingress {
-    from_port   = "1"
-    to_port     = "65365"
+    from_port   = "22"
+    to_port     = "22"
     protocol    = "TCP"
+    self        = true
     cidr_blocks = [var.address_allowed, var.vpc_cidr_block]
   }
 
@@ -30,7 +32,7 @@ resource "aws_security_group" "services" {
 
   tags = merge(
     {
-      Name = "security, group, aws, vpc1",
+      Name = "${var.project}-sg",
     },
     var.tags,
   )

@@ -19,7 +19,7 @@ resource "aws_vpc" "gen1" {
 
   tags = merge(
     {
-      Name = "vpc, aws",
+      Name = "${var.project}-vpc",
     },
     var.tags,
   )
@@ -28,13 +28,14 @@ resource "aws_vpc" "gen1" {
 # Provision a public subnet
 resource "aws_subnet" "gen1_public" {
   vpc_id                    = aws_vpc.gen1.id
-  cidr_block                = var.subnet_public_cidr_block
-  map_public_ip_on_launch   = "true" # makes this subnet public
-  availability_zone         = data.aws_availability_zones.available.names[0]
+  count                     = length(var.subnet_public_cidr_blocks)
+  cidr_block                = element(var.subnet_public_cidr_blocks, count.index)
+  map_public_ip_on_launch   = "true"
+  availability_zone         = element(data.aws_availability_zones.available.names, count.index)
 
   tags = merge(
     {
-      Name                     = "public, subnet, aws",
+      Name                     = "${var.project}-${element(data.aws_availability_zones.available.names, count.index)}-public-subnet",
       "kubernetes.io/role/elb" = "1"
     },
     var.tags,
@@ -44,13 +45,14 @@ resource "aws_subnet" "gen1_public" {
 # Provision a private subnet
 resource "aws_subnet" "gen1_private" {
   vpc_id                    = aws_vpc.gen1.id
-  cidr_block                = var.subnet_private_cidr_block
-  map_public_ip_on_launch   = "false" // makes private subnet
-  availability_zone         = data.aws_availability_zones.available.names[1]
+  count                     = length(var.subnet_private_cidr_blocks)
+  cidr_block                = element(var.subnet_private_cidr_blocks, count.index)
+  map_public_ip_on_launch   = "false"
+  availability_zone         = element(data.aws_availability_zones.available.names, count.index)
 
   tags = merge(
     {
-      Name                              = "private1, subnet, aws",
+      Name                              = "${var.project}-${element(data.aws_availability_zones.available.names, count.index)}-private-subnet",
       "kubernetes.io/role/internal-elb" = "1"
     },
     var.tags,

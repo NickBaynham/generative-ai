@@ -28,25 +28,27 @@ resource "aws_route_table" "public" {
 #  gateway_id             = aws_internet_gateway.igw1.id
 #}
 
-# Associate route for public subnet
+# Associate route for public subnets
 resource "aws_route_table_association" "public" {
-  subnet_id      = aws_subnet.gen1_public.id
-  route_table_id = aws_route_table.public.id
+  count          = length(var.subnet_public_cidr_blocks)
+  subnet_id      = element(aws_subnet.gen1_public[*].id, count.index)
+  route_table_id = element(aws_route_table.public[*].id, count.index)
 }
 
 
-# Create route custom for private subnet
+# Create route custom for private subnets
 resource "aws_route_table" "private" {
+  count  = length(var.subnet_private_cidr_blocks)
   vpc_id = aws_vpc.gen1.id
 
   route {
     cidr_block     = "0.0.0.0/0" //associated subnet can reach everywhere
-    nat_gateway_id = aws_nat_gateway.gen1_nat.id
+    nat_gateway_id = element(aws_nat_gateway.gen1_nat[*].id, count.index)
   }
 
   tags = merge(
     {
-      Name = "route, private1, nat, gateway, aws, vpc1",
+      Name = "${var.project}-private-route-${count.index}",
     },
     var.tags,
   )
@@ -54,6 +56,7 @@ resource "aws_route_table" "private" {
 
 # Associate route for private subnet
 resource "aws_route_table_association" "private" {
-  subnet_id      = aws_subnet.gen1_private.id
-  route_table_id = aws_route_table.private.id
+  count          = length(var.subnet_private_cidr_blocks)
+  subnet_id      = element(aws_subnet.gen1_private[*].id, count.index)
+  route_table_id = element(aws_route_table.private[*].id, count.index)
 }

@@ -9,7 +9,7 @@ resource "aws_internet_gateway" "igw" {
 
   tags = merge(
     {
-      Name = "router, gateway, aws, vpc",
+      Name = "${var.project}-igw",
     },
     var.tags,
   )
@@ -21,7 +21,7 @@ resource "aws_eip" "nat" {
 
   tags = merge(
     {
-      Name = "nat, gateway, aws, vpc",
+      Name = "${var.project}-nat-ip",
     },
     var.tags,
   )
@@ -29,13 +29,14 @@ resource "aws_eip" "nat" {
 
 # Create NAT Gateway
 resource "aws_nat_gateway" "gen1_nat" {
+  count         = length(var.subnet_private_cidr_blocks)
   allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.gen1_private.id
+  subnet_id     = aws_subnet.gen1_private[count.index].id
   depends_on    = [ aws_internet_gateway.igw ]
 
   tags = merge(
     {
-      Name = "nat, gateway, aws, vpc",
+      Name = "${var.project}-nat",
     },
     var.tags,
   )

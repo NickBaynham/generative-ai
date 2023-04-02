@@ -1,10 +1,11 @@
 module "eks_network" {
-  source                    = "../modules/tf-eks-network"
-  address_allowed           = var.address_allowed
-  environment               = var.environment
-  subnet_private_cidr_block = var.subnet_private_cidr_block
-  subnet_public_cidr_block  = var.subnet_public_cidr_block
-  vpc_cidr_block            = var.vpc_cidr_block
+  source                     = "../modules/tf-eks-network"
+  address_allowed            = var.address_allowed
+  environment                = var.environment
+  subnet_public_cidr_blocks   = var.subnet_public_cidr_blocks
+  vpc_cidr_block             = var.vpc_cidr_block
+  subnet_private_cidr_blocks = var.subnet_private_cidr_blocks
+  project                    = var.project_name
 }
 
 module "eks_cluster" {
@@ -13,9 +14,7 @@ module "eks_cluster" {
   cluster_version = var.cluster_version
   instance_type   = var.cluster_instance_type
   target_region   = var.region
-  subnet_ids = [
-    module.eks_network.private_subnet_id
-  ]
+  subnet_ids      = module.eks_network.private_subnet_ids
 }
 
 #resource "aws_iam_role" "eks" {
